@@ -14,7 +14,7 @@ else
 	sudo mkdir /var/log/cpusys-logger/Scripts
 fi
 
-sudo echo "" >> /var/log/cpusys-logger/Scripts/logScript.sh
+sudo echo "" >> sudo /var/log/cpusys-logger/Scripts/logScript.sh
 
 sudo cat >> sudo /var/log/cpusys-logger/Scripts/logScript.sh << EOF
 #!/bin/bash
