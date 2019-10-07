@@ -1,7 +1,5 @@
 #!/bin/bash
 
-
-
 if [ -d "/var/log/cpusys-logger" ] 
 then
 	if [ -d "/var/log/cpusys-logger/Logs" ] 
@@ -31,4 +29,3 @@ EOF
 
 
  
-
