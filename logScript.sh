@@ -18,7 +18,7 @@ fi
 
 sudo cd  /var/log/cpusys-logger/Scripts
 
-cat << logScript.sh
+cat > logScript.sh << log
 #!/bin/bash
 while : 
 do	
@@ -27,7 +27,7 @@ do
 
 	sleep 60
 done
-logScript.sh
+log
 
 
 
