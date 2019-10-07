@@ -2,9 +2,11 @@
 
 echo "creating cpusys..."
 MKSYS=$'sudo mkdir ~/Desktop/cpusys'
-echo "${MKSYS//[$'\t\r\n']}"
+${MKSYS//[$'\t\r\n']}
 echo "creating Script..."
 sudo mkdir ~/Desktop/cpusys/Script
+MKSCRIPT=$'sudo mkdir ~/Desktop/cpusys/Script'
+${MKSCRIPT//[$'\t\r\n']}
 echo "creating log file..."
 sudo mkdir ~/Desktop/cpusys/Script/Logs
 
