@@ -16,9 +16,8 @@ else
 	sudo mkdir /var/log/cpusys-logger/Scripts
 fi
 
-sudo cd  /var/log/cpusys-logger/Scripts
 
-cat > logScript.sh << log
+cat > /var/log/cpusys-logger/Scripts/logScript.sh << log
 #!/bin/bash
 while : 
 do	
@@ -30,7 +29,5 @@ done
 log
 
 
-
-sudo chmod +x logScript.sh
-
+ 
 
