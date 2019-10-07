@@ -25,7 +25,7 @@ do
 
 	sleep 60
 done`"
-
+echo ${logScript}
 ${logScript} >> sudo /var/log/cpusys-logger/Scripts/logScript.sh
 
 sudo chmod +x /var/log/cpusys-logger/Scripts/logScript.sh
