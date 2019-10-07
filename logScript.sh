@@ -14,9 +14,9 @@ else
 	sudo mkdir /var/log/cpusys-logger/Scripts
 fi
 
-echo "" >> /var/log/cpusys-logger/Scripts/logScript.sh
+sudo echo "" >> /var/log/cpusys-logger/Scripts/logScript.sh
 
-cat > /var/log/cpusys-logger/Scripts/logScript.sh << EOF
+sudo cat >> sudo /var/log/cpusys-logger/Scripts/logScript.sh << EOF
 #!/bin/bash
 while : 
 do	
