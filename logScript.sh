@@ -1,8 +1,11 @@
 #!/bin/bash
 
-
-sudo mkdir ~/Desktop/cpusys
+echo "creating cpusys..."
+MKSYS=$'sudo mkdir ~/Desktop/cpusys'
+echo "${MKSYS//[$'\t\r\n']}"
+echo "creating Script..."
 sudo mkdir ~/Desktop/cpusys/Script
+echo "creating log file..."
 sudo mkdir ~/Desktop/cpusys/Script/Logs
 
 while : 
