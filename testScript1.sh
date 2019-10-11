@@ -139,14 +139,16 @@ sudo echo "" > /var/log/cpusys-logger/Logs/con.log
 # -------------------------------------------------------- #
 
 # Run rsyslog Service
-#sudo systemctl start rsyslog
-#sudo systemctl enable rsyslog
+sudo systemctl start rsyslog
+sudo systemctl enable rsyslog
 
 
 # Run Logging Service
-#sudo systemctl start cpusys-logging
-#sudo systemctl enable cpusys-logging
+sudo systemctl start cpusys-logging
+sudo systemctl enable cpusys-logging
 
+
+echo "Done"
 
 
 
