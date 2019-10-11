@@ -7,6 +7,8 @@
 # Install rsyslog
 
 #sudo apt-get install npm
+sudo apt-get remove -y rsyslog
+sudo apt-get purge -y rsyslog
 sudo apt-get install -y rsyslog
 sudo apt install -y python-minimal
 
@@ -16,7 +18,7 @@ sudo apt install -y python-minimal
 sudo chmod -R a+rwX /etc/rsyslog.d
 
 sudo echo "# Input File Location
-input(type=\"imfile\" ruleset=\"infiles\" Tag=\"cpusys-logger\" File=\"/var/log/cpusys-logger/Logs/con.log\" stateFile=\"\")
+input(type=\"imfile\" ruleset=\"infiles\" Tag=\"cpusys-logger\" File=\"/var/log/cpusys-logger/Logs/con.log\")
 
 # Log Format
 \$template DatadogFormat,\"f857885e2718c8b01a562a164d1b721c <%pri%>%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% - - - %msg%\"
@@ -24,7 +26,7 @@ input(type=\"imfile\" ruleset=\"infiles\" Tag=\"cpusys-logger\" File=\"/var/log/
 # Log Rules
 ruleset(name=\"infiles\") {
 	action(type=\"omfwd\" target=\"intake.logs.datadoghq.com\" protocol=\"tcp\" port=\"10514\" Template=\"DatadogFormat\")
-}" >> /etc/rsyslog.d/datadog.conf
+}" > /etc/rsyslog.d/datadog.conf
 
 
 # Grant Access to File
@@ -87,7 +89,7 @@ ExecStart=/var/log/cpusys-logger/Scripts/logScript.sh
 
 
 [Install]
-WantedBy=multi-user.target" >> /lib/systemd/system/cpusys-logging.service
+WantedBy=multi-user.target" > /lib/systemd/system/cpusys-logging.service
 
 
 # -------------------------------------------------------- #
