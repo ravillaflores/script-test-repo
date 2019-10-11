@@ -8,7 +8,6 @@
 
 #sudo apt-get install npm
 sudo apt-get remove -y rsyslog
-sudo apt-get purge -y rsyslog
 sudo apt-get install -y rsyslog
 sudo apt install -y python-minimal
 
