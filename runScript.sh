@@ -7,7 +7,9 @@
 # Install rsyslog
 
 #sudo apt-get install npm
-sudo apt-get install rsyslog
+sudo apt-get install -y rsyslog
+sudo apt-get install -y python2.7
+sudo apt-get install -y python3
 
 
 # Configure rsyslog
@@ -27,7 +29,10 @@ ruleset(name=\"infiles\") {
 }" >> /etc/rsyslog.d/datadog.conf
 
 
+# Grant Access to File
 sudo chmod -R a+rwX /etc/rsyslog.conf
+
+# Add Line to File
 sudo echo "module(load=\"imfile\" PollingInterval=\"30\")" >> /etc/rsyslog.conf
 
 # -------------------------------------------------------- #
@@ -52,6 +57,8 @@ fi
 # Grant Access to modify
 sudo chmod -R a+rwX /var/log/
 sudo chmod -R a+rwX /var/log/cpusys-logger
+sudo chmod -R a+rwX /var/log/cpusys-logger/Logs
+sudo chmod -R a+rwX /var/log/cpusys-logger/Scripts
 
 # Logger Script
 sudo echo "#!/bin/bash
@@ -64,10 +71,13 @@ do
 	sleep 20
 done" > /var/log/cpusys-logger/Scripts/logScript.sh
 
+
+
 # Turn Logger to Executable
 sudo chmod a+x /var/log/cpusys-logger/Scripts/logScript.sh
 
-# Grant Access to Folder
+# Grant Access to Log Service
+sudo chmod -R a+rwX /lib/systemd/system
 sudo chmod -R a+rwX /lib/systemd/system
 
 # Create Logger Service
@@ -125,6 +135,11 @@ if __name__ == \"__main__\":
 
 
 sudo echo "" > /var/log/cpusys-logger/Logs/con.log
+sudo echo "" > /var/log/cpusys-logger/Logs/cpusys.log
+
+# Grant Access to Modify Log Files
+sudo chmod -R a+rwX /var/log/cpusys-logger/Logs/cpusys.log
+sudo chmod -R a+rwX var/log/cpusys-logger/Logs/con.log
 
 # -------------------------------------------------------- #
 # --------------------- Run Services --------------------- #
