@@ -1,17 +1,6 @@
 #!/bin/bash
 
 # -------------------------------------------------------- #
-# ----------------------- SSH Con ------------------------ #
-# -------------------------------------------------------- #
-
-
-#ec:51:34:59:17:9c:5c:17:a6:2f:e2:a0:03:b0:b5:4d:16:84:7c:81 # DataDog Agent Key Pair
-
-# ssh -i /path/my-key-pair.pem ec2-user@2001:db8:1234:1a00:9691:9503:25ad:1761
-# ' bash - i cd .. 
-
-
-# -------------------------------------------------------- #
 # ----------------------- rsyslog ------------------------ #
 # -------------------------------------------------------- #
 
@@ -77,6 +66,9 @@ done" > /var/log/cpusys-logger/Scripts/logScript.sh
 
 # Turn Logger to Executable
 sudo chmod a+x /var/log/cpusys-logger/Scripts/logScript.sh
+
+# Grant Access to Folder
+sudo chmod -R a+rwX /lib/systemd/system
 
 # Create Logger Service
 sudo echo "[Unit]
