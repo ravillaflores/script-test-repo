@@ -8,9 +8,7 @@
 
 #sudo apt-get install npm
 sudo apt-get install -y rsyslog
-sudo apt-get install -y python2.7
-sudo apt-get install -y python3
-
+sudo apt install -y python-minimal
 
 # Configure rsyslog
 
@@ -18,7 +16,7 @@ sudo apt-get install -y python3
 sudo chmod -R a+rwX /etc/rsyslog.d
 
 sudo echo "# Input File Location
-input(type=\"imfile\" ruleset=\"infiles\" Tag=\"cpusys-logger\" File=\"/home/rav/Desktop/Logger/Logs/con.log\" stateFile=\"\")
+input(type=\"imfile\" ruleset=\"infiles\" Tag=\"cpusys-logger\" File=\"/var/log/cpusys-logger/Logs/con.log\" stateFile=\"\")
 
 # Log Format
 \$template DatadogFormat,\"f857885e2718c8b01a562a164d1b721c <%pri%>%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% - - - %msg%\"
