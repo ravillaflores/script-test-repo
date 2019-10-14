@@ -1,13 +1,14 @@
 #!/bin/bash
 
-echo "Beigin Install..."
-echo "Installing Dependencies..."
+echo "Begin Installation..."
 # -------------------------------------------------------- #
 # ----------------------- rsyslog ------------------------ #
 # -------------------------------------------------------- #
 
 # Install rsyslog
 
+
+echo "Installing Dependecies..."
 #sudo apt-get install npm
 sudo apt-get remove -y rsyslog
 sudo apt-get purge -y rsyslog
@@ -16,11 +17,11 @@ sudo apt-get update -y
 sudo apt-get install -y rsyslog
 sudo apt install -y python-minimal
 
+echo "Configuring rsyslog..."
 # Configure rsyslog
-
-
 sudo chmod -R a+rwX /etc/rsyslog.d
 
+echo "Creating Datadog Config..."
 sudo echo "# Input File Location
 input(type=\"imfile\" ruleset=\"infiles\" Tag=\"cpusys-logger\" File=\"/var/log/cpusys-logger/Logs/con.log\")
 
@@ -36,10 +37,84 @@ ruleset(name=\"infiles\") {
 # Grant Access to File
 sudo chmod -R a+rwX /etc/rsyslog.conf
 
+
+echo "Patching Config File..."
+# Edit Rsyslog Config File
+sudo echo "#  /etc/rsyslog.conf	Configuration file for rsyslog.
+#
+#			For more information see
+#			/usr/share/doc/rsyslog-doc/html/rsyslog_conf.html
+#
+#  Default logging rules can be found in /etc/rsyslog.d/50-default.conf
+
+
+#################
+#### MODULES ####
+#################
+
+\$ModLoad imuxsock # provides support for local system logging
+\$ModLoad imklog   # provides kernel logging support (previously done by rklogd)
+
+#\$ModLoad imfile
+#\$InputFilePollInterval 10
+#\$PrivDropToGroup adm
+#\$WorkDirectory /var/spool/rsyslog
+
+module(load=\"imfile\" PollingInterval=\"30\")
+
+#\$ModLoad immark  # provides --MARK-- message capability
+#\$MarkMessagePeriod 20
+
+# provides UDP syslog reception
+#\$ModLoad imudp
+#\$UDPServerRun 514
+
+# provides TCP syslog reception
+#\$ModLoad imtcp
+#\$InputTCPServerRun 514
+
+
+###########################
+#### GLOBAL DIRECTIVES ####
+###########################
+
+#
+# Use traditional timestamp format.
+# To enable high precision timestamps, comment out the following line.
+#
+\$ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat
+
+# Filter duplicated messages
+\$RepeatedMsgReduction on
+
+#
+# Set the default permissions for all log files.
+#
+\$FileOwner syslog
+\$FileGroup adm
+\$FileCreateMode 0640
+\$DirCreateMode 0755
+\$Umask 0022
+\$PrivDropToUser syslog
+\$PrivDropToGroup syslog
+
+#
+# Where to place spool files
+#
+\$WorkDirectory /var/spool/rsyslog
+
+#
+# Include all config files in /etc/rsyslog.d/
+#
+\$IncludeConfig /etc/rsyslog.d/*.conf" > /etc/rsyslog.conf
+
+
+echo "Installing cpusys-logger..."
 # -------------------------------------------------------- #
 # ----------------------- Logger ------------------------- #
 # -------------------------------------------------------- #
 
+echo "Creating Folders..."
 # Create Directory inside /var/log
 if [ -d "/var/log/cpusys-logger" ] 
 then
@@ -61,39 +136,39 @@ sudo chmod -R a+rwX /var/log/cpusys-logger
 sudo chmod -R a+rwX /var/log/cpusys-logger/Logs
 sudo chmod -R a+rwX /var/log/cpusys-logger/Scripts
 
-echo "Creating Scripts..."
+echo "Writing Script Files..."
 # Logger Script
 sudo echo "#!/bin/bash
 while : 
 do	
-    
 	sudo echo \{ \\\"Time\\\": \`date +%s\`\, \\\"Host\\\": \\\"\`hostname\`\\\"\, \\\"CPU\\\": \`LC_ALL=C top -bn1 | grep \"Cpu(s)\" | sed \"s/.*, *\([0-9.]*\)%* id.*/\1/\" | awk '{print 100 - \$1}'\`\, \\\"RAM\\\": \`free -m | awk '/Mem:/ { printf(\$3/\$2*100) }'\`\, \\\"HDD\\\": \`df -h / | sed 's/%//' | awk '/\// {print \$(NF-1)}'\` \} >> /var/log/cpusys-logger/Logs/cpusys.log
 	sudo echo \{ \\\"Time\\\": \`date +%s\`\, \\\"Host\\\": \\\"\`hostname\`\\\"\, \\\"CPU\\\": \`LC_ALL=C top -bn1 | grep \"Cpu(s)\" | sed \"s/.*, *\([0-9.]*\)%* id.*/\1/\" | awk '{print 100 - \$1}'\`\, \\\"RAM\\\": \`free -m | awk '/Mem:/ { printf(\$3/\$2*100) }'\`\, \\\"HDD\\\": \`df -h / | sed 's/%//' | awk '/\// {print \$(NF-1)}'\` \} | ssh -o StrictHostKeyChecking=no -i '~/Desktop/Logger2/SampleKeyPai.pem' ubuntu@ec2-18-140-236-240.ap-southeast-1.compute.amazonaws.com -t 'bash -l -c \"sudo cat >> /var/log/cpusys-logger/Logs/con.log | bash ;bash\"'
 	sleep 25
-done" > /var/log/cpusys-logger/Scripts/instanceScript.sh
+done" > /var/log/cpusys-logger/Scripts/logScript.sh
 
 
-
-
+echo "Creating Service..."
 # Turn Logger to Executable
-sudo chmod a+x /var/log/cpusys-logger/Scripts/instanceScript.sh
+sudo chmod a+x /var/log/cpusys-logger/Scripts/logScript.sh
 
 # Grant Access to Log Service
 sudo chmod -R a+rwX /lib/systemd/system
 sudo chmod -R a+rwX /lib/systemd/system
 
+echo "Initializing Service..."
 # Create Logger Service
 sudo echo "[Unit]
 Description=cpusys-logging
 
 [Service]
-ExecStart=/var/log/cpusys-logger/Scripts/instanceScript.sh
+ExecStart=/var/log/cpusys-logger/Scripts/logScript.sh
 
 
 [Install]
 WantedBy=multi-user.target" > /lib/systemd/system/cpusys-logging.service
 
 
+echo "Writing Consolidation Script Service..."
 # -------------------------------------------------------- #
 # ------------------ File Consolidation ------------------ #
 # -------------------------------------------------------- #
@@ -147,12 +222,18 @@ sudo chmod -R a+rwX var/log/cpusys-logger/Logs/con.log
 # --------------------- Run Services --------------------- #
 # -------------------------------------------------------- #
 
+echo "Stopping rsyslog Service..."
+# Run rsyslog Service
+sudo systemctl stop rsyslog
 
+echo "Running cpusys-logger Service..."
 # Run Logging Service
 sudo systemctl start cpusys-logging
 sudo systemctl enable cpusys-logging
 
-sudo systemctl stop rsyslog
+
+echo "Done"
 
 
-echo "Finished Installation"
+
+
