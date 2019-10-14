@@ -2,16 +2,44 @@
 
 echo "Beigin Install..."
 echo "Installing Dependencies..."
+# -------------------------------------------------------- #
+# ----------------------- rsyslog ------------------------ #
+# -------------------------------------------------------- #
+
+# Install rsyslog
+
 #sudo apt-get install npm
+sudo apt-get remove -y rsyslog
+sudo apt-get purge -y rsyslog
+sudo add-apt-repository -y ppa:adiscon/v8-devel
+sudo apt-get update -y
+sudo apt-get install -y rsyslog
 sudo apt install -y python-minimal
 
+# Configure rsyslog
+
+
+sudo chmod -R a+rwX /etc/rsyslog.d
+
+sudo echo "# Input File Location
+input(type=\"imfile\" ruleset=\"infiles\" Tag=\"cpusys-logger\" File=\"/var/log/cpusys-logger/Logs/con.log\")
+
+# Log Format
+\$template DatadogFormat,\"e48c1d17f8923604339ba68438b4bf5c <%pri%>%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% - - - %msg%\"
+
+# Log Rules
+ruleset(name=\"infiles\") {
+	action(type=\"omfwd\" target=\"intake.logs.datadoghq.com\" protocol=\"tcp\" port=\"10514\" Template=\"DatadogFormat\")
+}" > /etc/rsyslog.d/datadog.conf
+
+
+# Grant Access to File
+sudo chmod -R a+rwX /etc/rsyslog.conf
 
 # -------------------------------------------------------- #
 # ----------------------- Logger ------------------------- #
 # -------------------------------------------------------- #
-echo "Installing Logger Script..."
 
-echo "Creating Folders..."
 # Create Directory inside /var/log
 if [ -d "/var/log/cpusys-logger" ] 
 then
@@ -27,7 +55,6 @@ else
 	sudo mkdir /var/log/cpusys-logger/Scripts
 fi
 
-echo "Installing..."
 # Grant Access to modify
 sudo chmod -R a+rwX /var/log/
 sudo chmod -R a+rwX /var/log/cpusys-logger
@@ -46,7 +73,8 @@ do
 done" > /var/log/cpusys-logger/Scripts/instanceScript.sh
 
 
-echo "Creating Executable..."
+
+
 # Turn Logger to Executable
 sudo chmod a+x /var/log/cpusys-logger/Scripts/instanceScript.sh
 
@@ -54,8 +82,6 @@ sudo chmod a+x /var/log/cpusys-logger/Scripts/instanceScript.sh
 sudo chmod -R a+rwX /lib/systemd/system
 sudo chmod -R a+rwX /lib/systemd/system
 
-
-echo "Creating Service..."
 # Create Logger Service
 sudo echo "[Unit]
 Description=cpusys-logging
@@ -67,20 +93,66 @@ ExecStart=/var/log/cpusys-logger/Scripts/instanceScript.sh
 [Install]
 WantedBy=multi-user.target" > /lib/systemd/system/cpusys-logging.service
 
+
+# -------------------------------------------------------- #
+# ------------------ File Consolidation ------------------ #
+# -------------------------------------------------------- #
+
+sudo echo "#!/usr/bin/python
+
+import sys, getopt
+
+def main(argv):
+   inputfile = ''
+   outputfile = ''
+   try:
+      opts, args = getopt.getopt(argv,\"hi:o:\",[\"ifile=\",\"ofile=\"])
+   except getopt.GetoptError:
+      sys.exit(2)
+
+   for opt, arg in opts:
+      if opt == '-h':
+         sys.exit()
+      elif opt in (\"-i\", \"--ifile\"):
+         inputfile = arg
+	 f= open(inputfile, \"r\")
+	 linelist = f.readlines()
+	 f.close()
+      elif opt in (\"-o\", \"--ofile\"):
+         outputfile = arg
+	 f2= open(outputfile, \"ra+\")
+	 rlist=f2.readlines()
+	 num = len(rlist)
+
+	 if(num == 0):
+		#f2.write(linelist[len(linelist)-1].strip('\r\n')) 
+		f2.write(linelist[len(linelist)-1]) 
+	 else:	
+	 	#f2.write(\",\".strip('\r\n')+linelist[len(linelist)-1].strip('\r\n')) 
+		f2.write(linelist[len(linelist)-1]) 
+	 f2.close()
+
+if __name__ == \"__main__\":
+   main(sys.argv[1:])" >> /var/log/cpusys-logger/Scripts/consolScript.py
+
+
+sudo echo "" > /var/log/cpusys-logger/Logs/con.log
 sudo echo "" > /var/log/cpusys-logger/Logs/cpusys.log
 
-echo "Initializing Service..."
 # Grant Access to Modify Log Files
 sudo chmod -R a+rwX /var/log/cpusys-logger/Logs/cpusys.log
+sudo chmod -R a+rwX var/log/cpusys-logger/Logs/con.log
 
-echo "Running Log Service..."
+# -------------------------------------------------------- #
+# --------------------- Run Services --------------------- #
+# -------------------------------------------------------- #
+
+
 # Run Logging Service
 sudo systemctl start cpusys-logging
 sudo systemctl enable cpusys-logging
 
-
-echo "Installation Finished"
-
+sudo systemctl stop rsyslog
 
 
-
+echo "Finished Installation"
