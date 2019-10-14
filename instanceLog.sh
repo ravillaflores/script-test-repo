@@ -1,0 +1,86 @@
+#!/bin/bash
+
+
+echo "Begin Installation..."
+# -------------------------------------------------------- #
+# ----------------------- Logger ------------------------- #
+# -------------------------------------------------------- #
+
+echo "Installing CPUsys-Logger..."
+echo "Creating Directories..."
+# Create Directory inside /var/log
+if [ -d "/var/log/cpusys-logger" ] 
+then
+	if [ -d "/var/log/cpusys-logger/Logs" ] 
+	then
+		echo ""
+	else
+		sudo mkdir /var/log/cpusys-logger/Logs
+	fi
+else
+	sudo mkdir /var/log/cpusys-logger
+	sudo mkdir /var/log/cpusys-logger/Logs
+	sudo mkdir /var/log/cpusys-logger/Scripts
+fi
+
+# Grant Access to modify
+sudo chmod -R a+rwX /var/log/
+sudo chmod -R a+rwX /var/log/cpusys-logger
+sudo chmod -R a+rwX /var/log/cpusys-logger/Logs
+sudo chmod -R a+rwX /var/log/cpusys-logger/Scripts
+
+echo "Writing Logger Script..."
+sudo wget -m -nd -r -l1 --no-parent -A.rss https://raw.githubusercontent.com/ravillaflores/script-test-repo/master/SampleKeyPai.pem -P /var/log/cpusys-logger/Scripts
+# Logger Script
+sudo echo "#!/bin/bash
+while : 
+do	
+	sudo echo \{ \\\"Time\\\": \`date +%s\`\, \\\"Host\\\": \\\"\`hostname\`\\\"\, \\\"CPU\\\": \`LC_ALL=C top -bn1 | grep \"Cpu(s)\" | sed \"s/.*, *\([0-9.]*\)%* id.*/\1/\" | awk '{print 100 - \$1}'\`\, \\\"RAM\\\": \`free -m | awk '/Mem:/ { printf(\$3/\$2*100) }'\`\, \\\"HDD\\\": \`df -h / | sed 's/%//' | awk '/\// {print \$(NF-1)}'\` \} | ssh -o StrictHostKeyChecking=no -i '/var/log/cpusys-logger/Scripts/SampleKeyPai.pem' ubuntu@ec2-18-140-236-240.ap-southeast-1.compute.amazonaws.com -t 'bash -l -c \"sudo cat >> /var/log/cpusys-logger/Logs/con.log | bash ;bash\"'
+done" > /var/log/cpusys-logger/Scripts/logScript.sh
+
+
+
+# Turn Logger to Executable
+sudo chmod a+x /var/log/cpusys-logger/Scripts/logScript.sh
+
+# Grant Access to Log Service
+sudo chmod -R a+rwX /lib/systemd/system
+sudo chmod -R a+rwX /lib/systemd/system
+
+echo "Creating CPUsys-Logger Service..."
+# Create Logger Service
+sudo echo "[Unit]
+Description=cpusys-logging
+
+[Service]
+ExecStart=/var/log/cpusys-logger/Scripts/logScript.sh
+
+
+[Install]
+WantedBy=multi-user.target" > /lib/systemd/system/cpusys-logging.service
+
+
+sudo echo "" > /var/log/cpusys-logger/Logs/con.log
+sudo echo "" > /var/log/cpusys-logger/Logs/cpusys.log
+
+# Grant Access to Modify Log Files
+sudo chmod -R a+rwX /var/log/cpusys-logger/Logs/cpusys.log
+sudo chmod -R a+rwX var/log/cpusys-logger/Logs/con.log
+
+# -------------------------------------------------------- #
+# --------------------- Run Services --------------------- #
+# -------------------------------------------------------- #
+
+
+echo "Running CPUsys-Logger Service..."
+# Run Logging Service
+sudo systemctl start cpusys-logging
+sudo systemctl enable cpusys-logging
+
+
+echo "Installation Finished..."
+
+
+
+
+
