@@ -10,8 +10,8 @@ sudo echo "Begin Installation..."
 
 sudo echo "Installing Dependecies..."
 #sudo apt-get install npm
-sudo apt-get remove -y rsyslog
-sudo apt-get purge -y rsyslog
+#sudo apt-get remove -y rsyslog
+#sudo apt-get purge -y rsyslog
 sudo add-apt-repository -y ppa:adiscon/v8-devel
 sudo apt-get update -y
 sudo apt-get install -y rsyslog
