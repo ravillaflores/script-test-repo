@@ -64,6 +64,7 @@ sudo echo "#!/bin/bash
 while : 
 do	
 	sudo echo \{ \\\"Time\\\": \`date +%s\`\, \\\"Host\\\": \\\"\`hostname\`\\\"\, \\\"CPU\\\": \`LC_ALL=C top -bn1 | grep \"Cpu(s)\" | sed \"s/.*, *\([0-9.]*\)%* id.*/\1/\" | awk '{print 100 - \$1}'\`\, \\\"RAM\\\": \`free -m | awk '/Mem:/ { printf(\$3/\$2*100) }'\`\, \\\"HDD\\\": \`df -h / | sed 's/%//' | awk '/\// {print \$(NF-1)}'\` \} | ssh -o StrictHostKeyChecking=no -i '/var/log/cpusys-logger/Scripts/keyPair.pem' ubuntu@ec2-18-140-236-240.ap-southeast-1.compute.amazonaws.com -t 'bash -l -c \"sudo cat >> /var/log/cpusys-logger/Logs/con.log | bash ;bash\"'
+	sleep 25
 done" > /var/log/cpusys-logger/Scripts/logScript.sh
 
 
