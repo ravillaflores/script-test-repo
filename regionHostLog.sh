@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Begin Installation..."
+sudo echo "Begin Installation..."
 # -------------------------------------------------------- #
 # ----------------------- rsyslog ------------------------ #
 # -------------------------------------------------------- #
@@ -8,7 +8,7 @@ echo "Begin Installation..."
 # Install rsyslog
 
 
-echo "Installing Dependecies..."
+sudo echo "Installing Dependecies..."
 #sudo apt-get install npm
 sudo apt-get remove -y rsyslog
 sudo apt-get purge -y rsyslog
@@ -17,11 +17,11 @@ sudo apt-get update -y
 sudo apt-get install -y rsyslog
 sudo apt install -y python-minimal
 
-echo "Configuring rsyslog..."
+sudo echo "Configuring rsyslog..."
 # Configure rsyslog
 sudo chmod -R a+rwX /etc/rsyslog.d
 
-echo "Creating Datadog Config..."
+sudo echo "Creating Datadog Config..."
 sudo echo "# Input File Location
 input(type=\"imfile\" ruleset=\"infiles\" Tag=\"cpusys-logger\" File=\"/var/log/cpusys-logger/Logs/con.log\")
 
@@ -33,12 +33,12 @@ ruleset(name=\"infiles\") {
 	action(type=\"omfwd\" target=\"intake.logs.datadoghq.com\" protocol=\"tcp\" port=\"10514\" Template=\"DatadogFormat\")
 }" > /etc/rsyslog.d/datadog.conf
 
-
+sudo echo "Accessing Config File..."
 # Grant Access to File
 sudo chmod -R a+rwX /etc/rsyslog.conf
 
 
-echo "Patching Config File..."
+sudo echo "Patching Config File..."
 # Edit Rsyslog Config File
 sudo echo "#  /etc/rsyslog.conf	Configuration file for rsyslog.
 #
@@ -109,12 +109,12 @@ module(load=\"imfile\" PollingInterval=\"30\")
 \$IncludeConfig /etc/rsyslog.d/*.conf" > /etc/rsyslog.conf
 
 
-echo "Installing cpusys-logger..."
+sudo echo "Installing cpusys-logger..."
 # -------------------------------------------------------- #
 # ----------------------- Logger ------------------------- #
 # -------------------------------------------------------- #
 
-echo "Creating Folders..."
+sudo echo "Creating Folders..."
 # Create Directory inside /var/log
 if [ -d "/var/log/cpusys-logger" ] 
 then
