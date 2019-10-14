@@ -23,7 +23,7 @@ sudo echo "# Input File Location
 input(type=\"imfile\" ruleset=\"infiles\" Tag=\"cpusys-logger\" File=\"/var/log/cpusys-logger/Logs/con.log\")
 
 # Log Format
-\$template DatadogFormat,\"f857885e2718c8b01a562a164d1b721c <%pri%>%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% - - - %msg%\"
+\$template DatadogFormat,\"e48c1d17f8923604339ba68438b4bf5c <%pri%>%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% - - - %msg%\"
 
 # Log Rules
 ruleset(name=\"infiles\") {
