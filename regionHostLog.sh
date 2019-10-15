@@ -23,7 +23,7 @@ sudo chmod -R a+rwX /etc/rsyslog.d
 
 sudo echo "Creating Datadog Config..."
 sudo echo "# Input File Location
-input(type=\"imfile\" ruleset=\"infiles\" Tag=\"cpusys-logger\" File=\"/var/log/cpusys-logger/Logs/con.log\" PersistStateInterval=\"25\")
+input(type=\"imfile\" ruleset=\"infiles\" Tag=\"cpusys-logger\" File=\"/var/log/cpusys-logger/Logs/con.log\" StateFile=\"rsys-host\")
 
 # Log Format
 \$template DatadogFormat,\"e48c1d17f8923604339ba68438b4bf5c <%pri%>%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% - - - %msg%\"
@@ -55,12 +55,7 @@ sudo echo "#  /etc/rsyslog.conf	Configuration file for rsyslog.
 \$ModLoad imuxsock # provides support for local system logging
 \$ModLoad imklog   # provides kernel logging support (previously done by rklogd)
 
-#\$ModLoad imfile
-#\$InputFilePollInterval 10
-#\$PrivDropToGroup adm
-#\$WorkDirectory /var/spool/rsyslog
-
-module(load=\"imfile\" PollingInterval=\"30\")
+module(load=\"imfile\" PollingInterval=\"10\")
 
 #\$ModLoad immark  # provides --MARK-- message capability
 #\$MarkMessagePeriod 20
