@@ -12,7 +12,7 @@ sudo echo "Installing Dependecies..."
 #sudo apt-get install npm
 sudo apt-get remove -y rsyslog
 sudo apt-get purge -y rsyslog
-sudo add-apt-repository -y ppa:adiscon/v8-devel
+sudo add-apt-repository -y ppa:adiscon/v8-stable
 sudo apt-get update -y
 sudo apt-get install -y rsyslog
 sudo apt install -y python-minimal
@@ -26,7 +26,7 @@ sudo echo "# Input File Location
 input(type=\"imfile\" ruleset=\"infiles\" Tag=\"cpusys-logger\" File=\"/var/log/cpusys-logger/Logs/con.log\")
 
 # Log Format
-\$template DatadogFormat,\"e48c1d17f8923604339ba68438b4bf5c <%pri%>%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% - - - %msg%\"
+\$template DatadogFormat,\"18ba51aa66a64c1fa6dde59feb8145ce <%pri%>%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% - - - %msg%\"
 
 # Log Rules
 ruleset(name=\"infiles\") {
@@ -54,11 +54,6 @@ sudo echo "#  /etc/rsyslog.conf	Configuration file for rsyslog.
 
 \$ModLoad imuxsock # provides support for local system logging
 \$ModLoad imklog   # provides kernel logging support (previously done by rklogd)
-
-#\$ModLoad imfile
-#\$InputFilePollInterval 10
-#\$PrivDropToGroup adm
-#\$WorkDirectory /var/spool/rsyslog
 
 module(load=\"imfile\" PollingInterval=\"30\")
 
