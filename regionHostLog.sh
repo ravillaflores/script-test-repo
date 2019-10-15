@@ -15,7 +15,9 @@ sudo apt-get purge -y rsyslog
 sudo add-apt-repository -y ppa:adiscon/v8-stable
 sudo apt-get update -y
 sudo apt-get install -y rsyslog
+sudo systemctl stop syslog.socket rsyslog.service
 sudo apt install -y python-minimal
+
 
 sudo echo "Configuring rsyslog..."
 # Configure rsyslog
@@ -23,7 +25,7 @@ sudo chmod -R a+rwX /etc/rsyslog.d
 
 sudo echo "Creating Datadog Config..."
 sudo echo "# Input File Location
-input(type=\"imfile\" ruleset=\"infiles\" Tag=\"cpusys-logger\" File=\"/var/log/cpusys-logger/Logs/con.log\")
+input(type=\"imfile\" ruleset=\"infiles\" Tag=\"cpusys-logger\" File=\"/var/log/cpusys-logger/Logs/con.log\" PersistStateInterval=\"0\")
 
 # Log Format
 \$template DatadogFormat,\"18ba51aa66a64c1fa6dde59feb8145ce <%pri%>%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% - - - %msg%\"
@@ -80,7 +82,7 @@ module(load=\"imfile\" PollingInterval=\"30\")
 \$ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat
 
 # Filter duplicated messages
-\$RepeatedMsgReduction on
+\$RepeatedMsgReduction off
 
 #
 # Set the default permissions for all log files.
@@ -102,7 +104,6 @@ module(load=\"imfile\" PollingInterval=\"30\")
 # Include all config files in /etc/rsyslog.d/
 #
 \$IncludeConfig /etc/rsyslog.d/*.conf" > /etc/rsyslog.conf
-
 
 sudo echo "Installing cpusys-logger..."
 # -------------------------------------------------------- #
@@ -213,7 +214,8 @@ sudo echo "" > /var/log/cpusys-logger/Logs/cpusys.log
 
 # Grant Access to Modify Log Files
 sudo chmod -R a+rwX /var/log/cpusys-logger/Logs/cpusys.log
-sudo chmod -R a+rwX var/log/cpusys-logger/Logs/con.log
+sudo chmod -R a+rwX /var/log/cpusys-logger/Logs/con.log
+sudo chmod -R a+rwX /var/spool/rsyslog
 
 # -------------------------------------------------------- #
 # --------------------- Run Services --------------------- #
