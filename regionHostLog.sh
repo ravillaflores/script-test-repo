@@ -23,7 +23,7 @@ sudo chmod -R a+rwX /etc/rsyslog.d
 
 sudo echo "Creating Datadog Config..."
 sudo echo "# Input File Location
-input(type=\"imfile\" ruleset=\"infiles\" Tag=\"cpusys-logger\" File=\"/var/log/cpusys-logger/Logs/con.log\")
+input(type=\"imfile\" ruleset=\"infiles\" Tag=\"cpusys-logger\" File=\"/var/log/cpusys-logger/Logs/con.log\" PersistStateInterval=\"25\")
 
 # Log Format
 \$template DatadogFormat,\"e48c1d17f8923604339ba68438b4bf5c <%pri%>%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% - - - %msg%\"
