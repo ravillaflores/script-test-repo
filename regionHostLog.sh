@@ -108,8 +108,6 @@ module(load=\"imfile\" PollingInterval=\"30\")
 #
 \$IncludeConfig /etc/rsyslog.d/*.conf" > /etc/rsyslog.conf
 
-sudo chown syslog /var/spool/rsyslog
-
 sudo echo "Installing cpusys-logger..."
 # -------------------------------------------------------- #
 # ----------------------- Logger ------------------------- #
