@@ -62,8 +62,8 @@ sudo echo "#  /etc/rsyslog.conf	Configuration file for rsyslog.
 
 module(load=\"imfile\" PollingInterval=\"30\")
 
-#\$ModLoad immark  # provides --MARK-- message capability
-#\$MarkMessagePeriod 20
+\$ModLoad immark  # provides --MARK-- message capability
+\$MarkMessagePeriod 20
 
 # provides UDP syslog reception
 #\$ModLoad imudp
