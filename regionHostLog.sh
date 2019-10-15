@@ -82,7 +82,7 @@ module(load=\"imfile\" PollingInterval=\"30\")
 \$ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat
 
 # Filter duplicated messages
-\$RepeatedMsgReduction off
+\$RepeatedMsgReduction on
 
 #
 # Set the default permissions for all log files.
