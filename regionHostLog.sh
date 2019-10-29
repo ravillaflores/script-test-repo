@@ -1,12 +1,14 @@
 #!/bin/bash
 
+
 sudo echo "Begin Installation..."
+
+sudo echo "Installing rsyslog"
 # -------------------------------------------------------- #
 # ----------------------- rsyslog ------------------------ #
 # -------------------------------------------------------- #
 
 # Install rsyslog
-
 
 sudo echo "Installing Dependecies..."
 #sudo apt-get install npm
@@ -133,17 +135,65 @@ sudo chmod -R a+rwX /var/log/cpusys-logger/Logs
 sudo chmod -R a+rwX /var/log/cpusys-logger/Scripts
 
 echo "Writing Script Files..."
+# DataDog Source Folder Change
+sudo echo "#!/bin/bash
+
+echo \"\$1 this is the param\"
+sudo echo \"Changing Datadog Config...\"
+sudo echo \"# Input File Location
+input(type=\\\"imfile\\\" ruleset=\\\"infiles\\\" Tag=\\\"cpusys-logger\\\" File=\\\"\$1\\\" PersistStateInterval=\\\"0\\\")
+
+# Log Format
+\\\$template DatadogFormat,\\\"18ba51aa66a64c1fa6dde59feb8145ce <%pri%>%protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% %app-name% - - - %msg%\\\"
+
+# Log Rules
+ruleset(name=\\\"infiles\\\") {
+	action(type=\\\"omfwd\\\" target=\\\"intake.logs.datadoghq.com\\\" protocol=\\\"tcp\\\" port=\\\"10514\\\" Template=\\\"DatadogFormat\\\")
+}\" > /etc/rsyslog.d/datadog.conf
+
+" > /var/log/cpusys-logger/Scripts/dd-refactor.sh
+
+sudo chmod a+x /var/log/cpusys-logger/Scripts/dd-refactor.sh
+
 # Logger Script
 sudo echo "#!/bin/bash
 while : 
 do	
+	pathFolder=/var/log/cpusys-logger/Logs
+	varDate=\`date +%y-%m-%d\`
+	varFile=\"sys-\$varDate.log\"
+	filePath=\`find \$pathFolder -type f -name \"\$varFile\"\`
 
-	sudo echo \{ \\\"Time\\\": \`date +%s\`\, \\\"Host\\\": \\\"\`hostname\`\\\"\, \\\"CPU\\\": \`LC_ALL=C top -bn1 | grep \"Cpu(s)\" | sed \"s/.*, *\([0-9.]*\)%* id.*/\1/\" | awk '{print 100 - \$1}'\`\, \\\"RAM\\\": \`free -m | awk '/Mem:/ { printf(\$3/\$2*100) }'\`\, \\\"HDD\\\": \`df -h / | sed 's/%//' | awk '/\// {print \$(NF-1)}'\` \} >> /var/log/cpusys-logger/Logs/cpusys.log
-	sleep 5
-	sudo python2 /var/log/cpusys-logger/Scripts/consolScript.py -i /var/log/cpusys-logger/Logs/cpusys.log -o /var/log/cpusys-logger/Logs/con.log
-	sleep 26
-	sudo bash -c \"> /var/log/cpusys-logger/Logs/cpusys.log\"
-	sudo bash -c \"> /var/log/cpusys-logger/Logs/con.log\"
+
+	if [ -f \"\$filePath\" ]; then
+		echo \"\$filePath exists\"
+	else
+		newFilePath=\$pathFolder\\/\$varFile
+		echo \"\$newFilePath does not exist, creating file\"
+		echo "" >> \$newFilePath
+		sudo chmod -R a+rwX \$newFilePath
+		. /var/log/cpusys-logger/Scripts/dd-refactor.sh \$newFilePath
+		sudo systemctl restart rsyslog
+	fi
+
+	date_diff=2
+	varDateRM=\`date --date=\"\$varDate -\$date_diff days\" +%y-%m-%d\`
+	varFileRM=\"sys-\$varDateRM.log\"
+	filePathRM=\`find \$pathFolder -type f -name \"\$varFileRM\"\`
+
+	
+	if [ -f \"\$filePathRM\" ]; then
+		echo \"\$filePathRM exists, deleting file...\"
+		sudo rm -f \$filePathRM
+		echo \"\$filePathRM is deleted.\"
+	else
+		echo \"\$filePathRM does not exists\"
+	fi
+
+	sudo echo \{ \\\"Time\\\": \`date +%s\`\, \\\"Host\\\": \\\"\`hostname\`\\\"\, \\\"CPU\\\": \`LC_ALL=C top -bn1 | grep \"Cpu(s)\" | sed \"s/.*, *\([0-9.]*\)%* id.*/\1/\" | awk '{print 100 - \$1}'\`\, \\\"RAM\\\": \`free -m | awk '/Mem:/ { printf(\$3/\$2*100) }'\`\, \\\"HDD\\\": \`df -h / | sed 's/%//' | awk '/\// {print \$(NF-1)}'\` \} >> \$newFilePath
+	
+	sleep 30
+
 	
 done" > /var/log/cpusys-logger/Scripts/logScript.sh
 
@@ -212,12 +262,7 @@ if __name__ == \"__main__\":
    main(sys.argv[1:])" >> /var/log/cpusys-logger/Scripts/consolScript.py
 
 
-sudo echo "" > /var/log/cpusys-logger/Logs/con.log
-sudo echo "" > /var/log/cpusys-logger/Logs/cpusys.log
-
 # Grant Access to Modify Log Files
-sudo chmod -R a+rwX /var/log/cpusys-logger/Logs/cpusys.log
-sudo chmod -R a+rwX /var/log/cpusys-logger/Logs/con.log
 sudo chmod -R a+rwX /var/spool/rsyslog
 
 # -------------------------------------------------------- #
