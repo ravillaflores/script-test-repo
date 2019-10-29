@@ -17,7 +17,7 @@ sudo apt-get update -y
 sudo apt-get install -y rsyslog
 sudo systemctl stop syslog.socket rsyslog.service
 sudo apt install -y python-minimal
-
+sudo apt install -y python-boto3
 
 sudo echo "Configuring rsyslog..."
 # Configure rsyslog
@@ -141,7 +141,10 @@ do
 	sudo echo \{ \\\"Time\\\": \`date +%s\`\, \\\"Host\\\": \\\"\`hostname\`\\\"\, \\\"CPU\\\": \`LC_ALL=C top -bn1 | grep \"Cpu(s)\" | sed \"s/.*, *\([0-9.]*\)%* id.*/\1/\" | awk '{print 100 - \$1}'\`\, \\\"RAM\\\": \`free -m | awk '/Mem:/ { printf(\$3/\$2*100) }'\`\, \\\"HDD\\\": \`df -h / | sed 's/%//' | awk '/\// {print \$(NF-1)}'\` \} >> /var/log/cpusys-logger/Logs/cpusys.log
 	sleep 5
 	sudo python2 /var/log/cpusys-logger/Scripts/consolScript.py -i /var/log/cpusys-logger/Logs/cpusys.log -o /var/log/cpusys-logger/Logs/con.log
-	sleep 20
+	sleep 26
+	sudo bash -c \"> /var/log/cpusys-logger/Logs/cpusys.log\"
+	sudo bash -c \"> /var/log/cpusys-logger/Logs/con.log\"
+	
 done" > /var/log/cpusys-logger/Scripts/logScript.sh
 
 
