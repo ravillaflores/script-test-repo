@@ -157,6 +157,12 @@ sudo chmod a+x /var/log/cpusys-logger/Scripts/dd-refactor.sh
 
 # Logger Script
 sudo echo "#!/bin/bash
+
+	ec2_avail_zone=\`curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone\`
+	ec2_region=\"\`echo \"\$ec2_avail_zone\" | sed 's/[a-z]$//'\`\"
+	ec2_instance_id=\`curl -s http://169.254.169.254/latest/meta-data/instance-id\`
+	ec2_name=\$(aws ec2 describe-tags --region \$ec2_region --filters \"Name=resource-id,Values=\$ec2_instance_id\" \"Name=key,Values=Name\" --output text | cut -f5)
+
 while : 
 do	
 	pathFolder=/var/log/cpusys-logger/Logs
@@ -190,7 +196,9 @@ do
 		echo \"\$filePathRM does not exists\"
 	fi
 
-	sudo echo \{ \\\"Time\\\": \`date +%s\`\, \\\"Host\\\": \\\"\`hostname\`\\\"\, \\\"CPU\\\": \`LC_ALL=C top -bn1 | grep \"Cpu(s)\" | sed \"s/.*, *\([0-9.]*\)%* id.*/\1/\" | awk '{print 100 - \$1}'\`\, \\\"RAM\\\": \`free -m | awk '/Mem:/ { printf(\$3/\$2*100) }'\`\, \\\"HDD\\\": \`df -h / | sed 's/%//' | awk '/\// {print \$(NF-1)}'\` \} >> \$newFilePath
+
+
+	sudo echo \{ \\\"Time\\\": \`date +%s\`\, \\\"Host\\\": \\\"\`\$ec2_name\`\\\"\, \\\"CPU\\\": \`LC_ALL=C top -bn1 | grep \"Cpu(s)\" | sed \"s/.*, *\([0-9.]*\)%* id.*/\1/\" | awk '{print 100 - \$1}'\`\, \\\"RAM\\\": \`free -m | awk '/Mem:/ { printf(\$3/\$2*100) }'\`\, \\\"HDD\\\": \`df -h / | sed 's/%//' | awk '/\// {print \$(NF-1)}'\` \} >> \$newFilePath
 	
 	sleep 30
 
